@@ -13,6 +13,9 @@ env:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
     steps:
     - uses: actions/checkout@v3
@@ -22,6 +25,12 @@ jobs:
       with:
         node-version: '18'
 
+    - name: Debug information
+      run: |
+        pwd
+        ls -la
+        echo $PATH
+        
     - name: Install Dependencies
       run: npm ci
 
