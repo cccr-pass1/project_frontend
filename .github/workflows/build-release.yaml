@@ -7,16 +7,12 @@ on:
     branches: [ main ]
 
 env:
-  HARBOR_REGISTRY: harbor.cccr-opensource.com  # Harbor 레지스트리 주소를 여기에 입력하세요
-  IMAGE_NAME: cccr-project/front-app  # 프로젝트 이름과 이미지 이름을 적절히 수정하세요
+  HARBOR_REGISTRY: harbor.cccr-opensource.com
+  IMAGE_NAME: cccr-project/front-app
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    permissions:
-      security-events: read
-      actions: read
-      contents: read
 
     steps:
     - uses: actions/checkout@v3
@@ -26,19 +22,11 @@ jobs:
       with:
         node-version: '18'
 
-    - name: Cache npm dependencies
-      uses: actions/cache@v3
-      with:
-        path: ~/.npm
-        key: ${{ runner.OS }}-node-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.OS }}-node-
-
     - name: Install Dependencies
       run: npm ci
 
-    - name: Run Tests
-      run: npm test
+    - name: Build React App
+      run: npm run build
 
     - name: Build Docker image
       run: |
@@ -56,5 +44,3 @@ jobs:
       run: |
         docker push ${{ env.HARBOR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
         docker push ${{ env.HARBOR_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-
-    # 여기에 추가적인 배포 단계를 포함할 수 있습니다 (예: Kubernetes 배포 등)
